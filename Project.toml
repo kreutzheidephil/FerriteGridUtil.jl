@@ -3,8 +3,14 @@ uuid = "bab52d2a-b59e-463f-9025-b61488042faa"
 authors = ["David Rollin <d.rollin@tu-braunschweig.de>", "Phil Kreutzheide <p.kreutzheide@tu-braunschweig.de>"]
 version = "1.0.0-DEV"
 
+[deps]
+Ferrite = "c061ca5d-56c9-439f-9c0e-210fe06d3992"
+Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+
 [compat]
-julia = "1.6.7"
+Ferrite = "1.0"
+Makie = "0.21"
+julia = "1.10"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
