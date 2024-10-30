@@ -17,7 +17,7 @@ makedocs(;
     authors="David Rollin <d.rollin@tu-braunschweig.de>, Phil Kreutzheide <p.kreutzheide@tu-braunschweig.de>",
     sitename="FerriteGridUtil.jl",
     format=Documenter.HTML(;
-        canonical="https://Ferrite-FEM.github.io/FerriteGridUtil.jl",
+        canonical="https://DRollin.github.io/FerriteGridUtil.jl",
         edit_link="main",
         assets=String[],
     ),
@@ -31,7 +31,7 @@ makedocs(;
             "Reference overview" => "reference/index.md",
             "reference/property.md",
             "reference/manipulation.md",
-            "reference/save_load.md",
+            "reference/saveload.md",
             "reference/conversion.md",
         ],
         "devdocs/index.md",

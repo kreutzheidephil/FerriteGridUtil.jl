@@ -1,8 +1,8 @@
 # Manipulations
 
 ```@docs
-scale
-scale!
-shift
-shift!
+scale_relative_to
+scale_relative_to!
+shift_by
+shift_by!
 ```

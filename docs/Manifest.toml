@@ -351,9 +351,7 @@ version = "1.0.0"
 
 [[deps.FerriteGridUtil]]
 deps = ["Ferrite", "Makie"]
-git-tree-sha1 = "ccefa4eee325d12719ca2e93c975dcb3f9a4e770"
-repo-rev = "main"
-repo-url = ".."
+path = ".."
 uuid = "bab52d2a-b59e-463f-9025-b61488042faa"
 version = "1.0.0-DEV"
 

@@ -6,10 +6,10 @@ export get_volume, get_bounds, get_interface_between_sets
 
 # Functions to manipulate a grid
 include("manipulation.jl")
-export scale, scale!, shift, shift!
+export scale_relative_to, scale_relative_to!, shift_by, shift_by!
 
 # Functions to save and load a grid
-include("save_load.jl")
+include("saveload.jl")
 export save, load
 
 # Functions to convert a grid to a mesh-type of a different package
