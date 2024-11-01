@@ -1,5 +1,5 @@
 module FerriteGridUtil
-
+using Ferrite, Makie
 # Functions to compute properties of a grid
 include("property.jl")
 export get_volume, get_bounds, get_interface_between_sets
