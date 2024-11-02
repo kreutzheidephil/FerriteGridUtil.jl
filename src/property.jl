@@ -30,35 +30,35 @@ end
     get_dofs_from_coord()
 
 Return the dofs corresponding to a coordinate. 
-The node must be within a neighbourhood of `x` with radius `tol`.
+The node must be within a neighbourhood of `x` with radius `radius`. The default `radius` is 1e-3 .
 """
-function get_dofs_from_coord(
-                            grid::Ferrite.Grid,
-                            dh::Ferrite.DofHandler,
-                            coord::Vector,
-                            fieldname::Symbol = nothing,
-                            tol::Number
-                            )
-        cells = Ferrite.getcells(grid) # all cells from grid are stored in an iterable collection cells[]
-        position = nothing
-        nodes = Ferrite.getnodes(grid)
-        x_to_index = Dict(grid.nodes[n].x => n for n in nodes)
-        # iterate through the cells nodes and find the first instance of the node ID corresponding to position coord
-        local dofs
-        for cellid in 1:length(cells)
-            # for nodeid in 1:
-            # find cell with node that has correct coordinate, then use celldofs to output the correct dofs
-            nodeid = findfirst(_x -> _x == x, cells[cellid].nodes)
-            if !isnothing(nodeid)
-                dofs = Ferrite.celldofs(dh, i)
-                break
-            end
-        end
-        if isanothing(fieldname)
-            return dofs
-        else
-            return missing
-        end   
+function get_dofs_from_coord(grid::Ferrite.Grid, dh::Ferrite.DofHandler, x::Vector, fieldname::Symbol=nothing; radius::Number=1e-3)
+    if !(fieldname ∈ dh.field_names)
+        throw(ArgumentError("Invalid field name $fieldname"))
     end
+    if !isnothing(fieldname)
+        dof_position = findfirst(name -> name == fieldname, dh.field_names)
+    end
+    cells = Ferrite.getcells(grid) # all cells from grid are stored in an iterable collection cells[]
+    nodeid = nothing
+    local dofs
+    @inline foo(n) = Ferrite.get_node_coordinate(grid, n)
+    # iterate through the cells nodes and find the first 
+    # instance of the node ID with coordinate in a ball of radius `tol` around x
+    for cellid in eachindex(cells) # !! possiblity for errors if cells is not indexed linearly !!
+        nodeid = findfirst(_x -> norm(_x - x) < tol, foo.(cells[cellid].nodes))
+        if !isnothing(nodeid)
+            dofs = Ferrite.celldofs(dh, cellid)
+            break
+        end
+    end
+    if isnothing(fieldname)
+        return dofs
+    else
+        return dof[dof_position]
+    end
+end
 
-    
+function test()
+    print("test func")
+end
