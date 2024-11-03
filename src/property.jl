@@ -36,10 +36,9 @@ degrees of freedom per node (i.e. 3 for a 3D displacement problem)
 function get_dofs_from_coord(dh::Ferrite.DofHandler, x::Vector, dofs_per_node::Int64; radius=1e-4)
     cells = Ferrite.getcells(dh.grid)
     nodeid = nothing
-    local node_dofs
     @inline get_coords(n) = Ferrite.get_node_coordinate(dh.grid, n)
     # iterate through the cells nodes and find the first 
-    # instance of the node ID with coordinate in a ball of radius `tol` around x
+    # instance of the node id with coordinate in a ball of radius `radius` around x
     for cellid in eachindex(cells) # !! possiblity for errors if cells is not indexed linearly !!
         nodeid = findfirst(_x -> norm(_x - x) < radius, get_coords.(cells[cellid].nodes))
         if !isnothing(nodeid)
@@ -48,13 +47,4 @@ function get_dofs_from_coord(dh::Ferrite.DofHandler, x::Vector, dofs_per_node::I
         end
     end
     throw("No node was found with coordinate $x, try increasing radius")
-end
-
-"""
-    test()
-
-TBW
-"""
-function test()
-    println("works")
 end
