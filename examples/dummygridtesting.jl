@@ -1,8 +1,6 @@
 import FerriteGridUtil
 using Ferrite
 
-println("works")
-
 nx = 10
 ny = 10
 nz = 10
@@ -17,4 +15,7 @@ add!(dh, :u, ip)
 close!(dh)
 
 FerriteGridUtil.test()
-dof = FerriteGridUtil.get_dofs_from_coord(grid, dh, x)
+# dof = FerriteGridUtil.get_dofs_from_coord(grid, dh, x)
+dof = FerriteGridUtil.get_dofs_from_coord(grid, dh, x)#; fieldname=:u)
+
+# (grid::Ferrite.Grid, dh::Ferrite.DofHandler, x::Vector; fieldname::Symbol = missing, radius::Number=1e-3)
