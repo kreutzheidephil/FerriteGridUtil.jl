@@ -5,17 +5,16 @@ nx = 10
 ny = 10
 nz = 10
 order = 1
-x = [0,0,0]
+x = [-1/2, -1/2, 10.1]
 
 grid = generate_grid(Hexahedron, (nx, ny, nz), Vec{3}((-1/2, -1/2, -1/2)), Vec{3}((1/2, 1/2, 1/2)))
 
-ip = Lagrange{RefHexahedron, order}()^3
+ipu = Lagrange{RefHexahedron, order}()^3
+ipp = Lagrange{RefHexahedron, order}()^1
 dh = DofHandler(grid)
-add!(dh, :u, ip)
+add!(dh, :u, ipu)
+# add!(dh, :u, ipp)
 close!(dh)
+dofs_per_node = 3
 
-FerriteGridUtil.test()
-# dof = FerriteGridUtil.get_dofs_from_coord(grid, dh, x)
-dof = FerriteGridUtil.get_dofs_from_coord(grid, dh, x)#; fieldname=:u)
-
-# (grid::Ferrite.Grid, dh::Ferrite.DofHandler, x::Vector; fieldname::Symbol = missing, radius::Number=1e-3)
+dof = FerriteGridUtil.get_dofs_from_coord(dh, x, dofs_per_node)#; fieldname=:u)
