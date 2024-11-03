@@ -49,7 +49,7 @@ function get_dofs_from_coord(grid::Ferrite.Grid, dh::Ferrite.DofHandler, x::Vect
     for cellid in eachindex(cells) # !! possiblity for errors if cells is not indexed linearly !!
         nodeid = findfirst(_x -> norm(_x - x) < radius, get_coords.(cells[cellid].nodes))
         if !isnothing(nodeid)
-            dofs = Ferrite.celldofs(dh, cellid)
+            dofs = Ferrite.celldofs(dh, nodeid)
             break
         end
     end
