@@ -1,14 +1,8 @@
 module FerriteGridUtil
-
-using Ferrite
-using Makie: Makie, GeometryBasics
-using HDF5: h5open, create_group, read, close
-
-# TODO:  implement, test, document
-
+using Ferrite, Makie
 # Functions to compute properties of a grid
 include("property.jl")
-export get_volume, get_bounds, get_interface_between_sets
+export get_volume, get_bounds, get_interface_between_sets, test
 
 # Functions to manipulate a grid
 include("manipulation.jl")
