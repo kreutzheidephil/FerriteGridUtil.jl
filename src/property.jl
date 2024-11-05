@@ -106,7 +106,8 @@ function get_dofs_from_coord(dh::Ferrite.DofHandler, x::Vector, dofs_per_node::I
     for cellid in eachindex(cells) # !! possiblity for errors if cells is not indexed linearly !!
         nodeid = findfirst(_x -> norm(_x - x) < radius, get_coords.(cells[cellid].nodes))
         if !isnothing(nodeid)
-            node_dofs = Ferrite.celldofs(dh, cellid)[dofs_per_node*(nodeid-1)+1:dofs_per_node*nodeid]
+            cell_dofs = Ferrite.celldofs(dh, cellid)
+            node_dofs = cell_dofs[dofs_per_node*(nodeid-1)+1:dofs_per_node*nodeid]
             return node_dofs
         end
     end
