@@ -94,10 +94,10 @@ end
     get_dofs_from_coord(dh::Ferrite.DofHandler, x::Vector, dofs_per_node::Int64; radius=1e-3)
 
 Return the degrees of freedom corresponding to a node at coordinate `x`. 
-The node must be within a neighbourhood of radius `radius`. The default `radius` is 1e-4. `dofs_per_node` are the
+The node must be within a neighbourhood of radius `radius`. The default `radius` is 1e-3. `dofs_per_node` are the
 degrees of freedom per node (i.e. 3 for a 3D displacement problem)
 """
-function get_dofs_from_coord(dh::Ferrite.DofHandler, x::Vector, dofs_per_node::Int64; radius=1e-4)
+function get_dofs_from_coord(dh::Ferrite.DofHandler, x::Vector, dofs_per_node::Int64; radius=1e-3)
     cells = Ferrite.getcells(dh.grid)
     nodeid = nothing
     @inline get_coords(n) = Ferrite.get_node_coordinate(dh.grid, n)
