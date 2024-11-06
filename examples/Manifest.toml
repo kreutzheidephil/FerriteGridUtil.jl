@@ -2,7 +2,7 @@
 
 julia_version = "1.11.1"
 manifest_format = "2.0"
-project_hash = "11c33c76c5bc5d59e1f00cb83acd86a018f69d8a"
+project_hash = "2e379abebfe02255c5f404173598720b63e6234e"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -334,7 +334,7 @@ version = "1.0.0"
     Metis = "2679e427-3c69-5b7f-982b-ece356f1e94b"
 
 [[deps.FerriteGridUtil]]
-deps = ["Ferrite", "HDF5", "Makie"]
+deps = ["Ferrite", "HDF5", "Makie", "OrderedCollections"]
 path = "C:\\Users\\philc\\.julia\\dev\\FerriteGridUtil"
 uuid = "bab52d2a-b59e-463f-9025-b61488042faa"
 version = "1.0.0-DEV"

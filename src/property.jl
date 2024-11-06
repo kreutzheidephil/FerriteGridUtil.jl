@@ -78,6 +78,7 @@ function get_interface_between_sets(grid::Grid{dim}, set¹::AbstractSet{Int}, se
         for facet in 1:nfacets(cell¹)
             facetindex = FacetIndex(cellid¹, facet)
             neighbor = getneighborhood(top, grid, facetindex)
+            # isempty(neighbor) ? continue : nothing
             length(neighbor) == 0 ? continue : nothing
             if neighbor[1][1] in set²
                 push!(Γⁱⁿᵗ, facetindex)
@@ -95,3 +96,42 @@ end
 function get_interface_between_sets(grid, set¹::AbstractSet{Int}, set²::String)
     return get_interface_between_sets(grid, set¹, getcellset(grid, set²))
 end
+
+"""
+    get_dofs_from_coord(dh::DofHandler{dim}, x::Vec{dim}, fieldname::Symbol; radius::Real=1e-3) where {dim}
+
+Return the degrees of freedom corresponding to `fieldname` for a node at coordinate `x`. 
+The node must be within a neighbourhood of radius `radius`. The default `radius` is 1e-3.
+"""
+function get_dofs_from_coord(dh::DofHandler{dim}, x::Vec{dim}, fieldname::Symbol; radius::Real=1e-3) where {dim}
+    ip = Ferrite.getfieldinterpolation(dh, Ferrite.find_field(dh, fieldname))
+    isa(ip, ScalarInterpolation) ? dofs_per_field = 1 : dofs_per_field = dim
+    cellid, node_position, found_node = _get_node_info_from_coord(dh, x; radius=radius)
+    if found_node
+        cell_dofs = celldofs(dh, cellid)
+        node_dofs = cell_dofs[dof_range(dh, fieldname)][dofs_per_field * (node_position - 1) + 1 : dofs_per_field * node_position]
+        return node_dofs
+    else
+        throw("No node was found with coordinate $x, try increasing the radius")
+    end
+end
+
+function get_dofs_from_coord(dh::DofHandler{dim}, x::Vector, fieldname::Symbol; radius::Real=1e-3) where {dim}
+    return get_dofs_from_coord(dh, Tensors.Tensor{1,dim}(x), fieldname; radius=radius)
+end
+
+function _get_node_info_from_coord(dh::DofHandler{dim}, x::Vec{dim}; radius::Real=1e-3) where {dim}
+    cells = getcells(dh.grid)
+    node_position = nothing
+    found_node = false
+    @inline _get_node_coords(n) = Ferrite.get_node_coordinate(dh.grid, n)
+    for cellid in eachindex(cells) # possiblity for errors if cells is not indexed linearly
+        node_position = findfirst(_x -> norm(_x - x) < radius, _get_node_coords.(cells[cellid].nodes))
+        if !isnothing(node_position)
+            found_node = true
+            return cellid, node_position, found_node
+        end
+    end
+    return nothing, nothing, found_node
+end
+
