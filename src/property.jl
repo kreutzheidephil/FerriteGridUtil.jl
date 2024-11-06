@@ -2,7 +2,9 @@
 """
     get_moment()
 
-Return the volume.
+Return the moment of a `grid` or a `cellset`. The `order ∈ {0, 1, 2}` correspondes to the 
+volume, centre of gravity and second moment of inertia respectively. The moment is calculated using the default `QuadratureRule`
+for the cells of the grid.
 """
 function get_moment(grid::Grid{dim}, order::Int; 
         cellset::Union{String,AbstractSet{Int}}=OrderedSet{Int}(1:getncells(grid)), 
@@ -66,9 +68,9 @@ end
 # -> working for all dimensions like this?
 # -> return two facet sets, one from the perspective of each cell set?
 """
-    get_interface_between_sets()
+    get_interface_between_sets(grid::Grid{dim}, set¹::AbstractSet{Int}, set²::AbstractSet{Int}) where {dim}
 
-Return the interface.
+Return the interface between `set¹` and `set²`.
 """
 function get_interface_between_sets(grid::Grid{dim}, set¹::AbstractSet{Int}, set²::AbstractSet{Int}) where {dim}
     top = ExclusiveTopology(grid)
@@ -134,4 +136,3 @@ function _get_node_info_from_coord(dh::DofHandler{dim}, x::Vec{dim}; radius::Rea
     end
     return nothing, nothing, found_node
 end
-
