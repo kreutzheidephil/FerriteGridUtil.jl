@@ -39,7 +39,7 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/DRollin/FerriteGridUtil.jl",
+    repo="github.com/DRollin/FerriteGridUtil.jl.git",
     devbranch="main",
     push_preview=true,
 )
