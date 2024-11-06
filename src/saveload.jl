@@ -1,7 +1,11 @@
-# TODO: implement saving and loading grids
-# -> to an HDF5 file -> relatively simple, but some work to generalize for all kinds of elements etc.
+# TODO: implement, test, document
+# -> to an HDF5 file?
+#       |-> relatively simple, but some work to generalize for all kinds of elements etc
+#       |-> add to FerriteMeshParser.jl?
 # -> one of the "NASTRAN® Bulk Data" file types: .nas, .bdf, .nastran, .dat to allow import to COMSOL: https://www.comsol.com/support/learning-center/article/76161
-#       |-> Not sure how these files are structured... Gmsh should be able to export to a .bdf file !!! -> A function to add to Gmsh could even be used to export to other types *_*
+#       |-> Not sure how these files are structured... 
+#       |-> Gmsh should be able to export to a .bdf file !!! -> A function to add to Gmsh could even be used to export to other types *_*
+#       |-> make this an extension of FerriteGmsh? Or just add it directly to FerriteGmsh? (so far they only translate from Gmsh to Ferrite)
 # -> .stl file for whole grid and only a cellset?
 
 """
@@ -38,6 +42,9 @@ function save_grid(grid::Grid{3,Tetrahedron}, filepath::String)
 end
 =#
 
+###################################################################################################
+###################################################################################################
+# TODO: implement, test, document
 """
     load()
 

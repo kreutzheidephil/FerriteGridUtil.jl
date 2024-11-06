@@ -1,6 +1,6 @@
 # Saving and loading to/from a file
 
-```@docs
-save
-load
+```@autodocs
+Modules = [FerriteGridUtil]
+Pages   = ["saveload.jl"]
 ```
