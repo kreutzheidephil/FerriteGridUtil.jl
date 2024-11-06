@@ -86,6 +86,9 @@ function get_interface_between_sets(grid::Grid{dim}, set¹::OrderedSet{Int}, set
     end
     return Γⁱⁿᵗ
 end
+
+# add get_dofs_from_nodeid() 
+
 # TODO: implementation to compute set of facets connecting two sets of cells
 # -> working for all dimensions like this?
 # -> return two facet sets, one from the persepctive of each cell set?
@@ -100,6 +103,7 @@ degrees of freedom per node (i.e. 3 for a 3D displacement problem)
 function get_dofs_from_coord(dh::Ferrite.DofHandler, x::Vector, dofs_per_node::Int64; radius=1e-4)
     cells = Ferrite.getcells(dh.grid)
     nodeid = nothing
+    # dof_range
     @inline get_coords(n) = Ferrite.get_node_coordinate(dh.grid, n)
     # iterate through the cells nodes and find the first 
     # instance of the node id with coordinate in a ball of radius `radius` around x
