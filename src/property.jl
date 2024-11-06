@@ -1,6 +1,6 @@
 # TODO: test, document
 """
-    get_volume()
+    get_moment()
 
 Return the volume.
 """
@@ -14,7 +14,7 @@ function get_moment(grid::Grid{dim}, order::Int;
     return _compute_moment(grid, Val(order), cellidsbytype, refpoint)
 end
 
-function _compute_moment(grid::Grid{dim}, order::Val{O}, cellidsbytype::Dict{Type,OrderedSet{Int}}, refpoint::Vec{dim}) where {dim, O}
+function _compute_moment(grid::Grid{dim}, order::Val{ord}, cellidsbytype::Dict{DataType,OrderedSet{Int}}, refpoint::Vec{dim}) where {dim, ord}
     m = _init_moment(order, dim)
     for (T, cellids) in cellidsbytype
         cv = _init_cv(T, order)
@@ -35,8 +35,8 @@ _init_moment(::Val{0}, dim::Int) = 0.0
 _init_moment(::Val{1}, dim::Int) = zero(Vec{dim})
 _init_moment(::Val{2}, dim::Int) = zero(Tensor{2,dim})
 
-function _init_cv(T::Type{<:Ferrite.AbstractCell{RefShape}}, ::Val{O}) where {RefShape, O}
-    qr  = QuadratureRule{RefShape}(1+O)
+function _init_cv(T::Type{<:Ferrite.AbstractCell{RefShape}}, ::Val{ord}) where {RefShape, ord}
+    qr  = QuadratureRule{RefShape}(1+ord)
     ipf = Lagrange{RefShape,1}()
     ipg = geometric_interpolation(T)
     return CellValues(qr, ipf, ipg)

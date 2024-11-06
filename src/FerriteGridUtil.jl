@@ -1,7 +1,7 @@
 module FerriteGridUtil
 
 using Ferrite
-using OrderedCollections
+using OrderedCollections: OrderedSet
 using Makie: Makie, GeometryBasics
 using HDF5: h5open, create_group, read, close
 

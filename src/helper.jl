@@ -1,9 +1,9 @@
 function _get_cellids_by_type(grid::Grid{dim}, cellset::AbstractSet{Int}) where {dim}
-    cellidsbytype = Dict([T => OrderedSet{Int}() for T in _get_cell_types_by_dim(Val{dim})])
+    cellidsbytype = Dict([T => OrderedSet{Int}() for T in _get_cell_types_by_dim(Val(dim))])
     for cellid in cellset
         cell = getcells(grid, cellid)
-        if ! typeof(cell) in keys(cellidsbytype)
-            continue # Exclude not considered cells
+        if ! (typeof(cell) in keys(cellidsbytype))
+            continue # Exclude embedded cells
         end
         push!(cellidsbytype[typeof(cell)], cellid)
     end

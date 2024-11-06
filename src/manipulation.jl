@@ -4,7 +4,7 @@
 
 Return a scaled grid.
 """
-function scale_relative(grid::Grid{dim}, scalefactor::Real; refpoint=zero(Vec{dim})) where {dim}
+function scale_relative(grid::Grid{dim}, scalefactor::Real; refpoint::Vec{dim}=zero(Vec{dim})) where {dim}
     return scale_relative!(deepcopy(grid), scalefactor; refpoint=refpoint)
 end
 
@@ -13,7 +13,7 @@ end
 
 Return a scaled grid.
 """
-function scale_relative!(grid::Grid{dim}, scalefactor::Real; refpoint=zero(Vec{dim})) where {dim}
+function scale_relative!(grid::Grid{dim}, scalefactor::Real; refpoint::Vec{dim}=zero(Vec{dim})) where {dim}
     for (i, n) in grid.nodes
         grid.nodes[i] = refpoint + scalefactor*(n.x - refpoint)
     end

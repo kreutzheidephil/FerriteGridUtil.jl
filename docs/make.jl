@@ -18,7 +18,7 @@ makedocs(;
     sitename="FerriteGridUtil.jl",
     format=Documenter.HTML(;
         canonical="https://DRollin.github.io/FerriteGridUtil.jl",
-        edit_link=:commit,#"main",
+        edit_link="main",
         assets=String[],
     ),
     pages=[
