@@ -1,23 +1,24 @@
-using FerriteGridUtil
-using Ferrite
-using Test
+@testset "get_moment()" begin
+    @test isdefined(FerriteGridUtil, :get_moment)
+    @testset "0ᵗʰ moment for grid with $(T) cells" for (T, grid) in simplegrids
+        @test isapprox(get_moment(grid, 0), 1.0; rtol=1e-8)
+    end
+    @testset "1ˢᵗ moment for grid with $(T) cells" for (T, grid) in simplegrids
+        onevec = Vec{Ferrite.getspatialdim(grid)}(i -> 1.0)
+        @test isapprox(get_moment(grid, 1), onevec; rtol=1e-8)
+    end
+end
 
-@testset "property.jl" begin
-    nx = 10
-    ny = 10
-    nz = 10
-    order = 1
-    corner1 = [-1/2, -1/2, -1/2]
-    corner2 = [1/2, 1/2, 1/2]
-    grid = Ferrite.generate_grid(Hexahedron, (nx, ny, nz), Vec{3}((-1/2, -1/2, -1/2)), Vec{3}((1/2, 1/2, 1/2)))
-    dim = 3
-    ipu = Ferrite.Lagrange{RefHexahedron, order}()^dim
-    ipp = Ferrite.Lagrange{RefHexahedron, order}()^(dim-2)
-    dh = Ferrite.DofHandler(grid)
-    add!(dh, :u, ipu)
-    add!(dh, :p, ipp)
-    close!(dh)
-    dofs_per_node = dim + dim - 2
-    dofs_corner1 = FerriteGridUtil.get_dofs_from_coord(dh, corner1, dofs_per_node)
-    @test dofs_corner1 == collect(1:dofs_per_node)
+###################################################################################################
+###################################################################################################
+
+@testset "get_coordinate_limits()" begin
+    @test isdefined(FerriteGridUtil, :get_coordinate_limits) 
+end
+
+###################################################################################################
+###################################################################################################
+
+@testset "get_interface_between_sets()" begin
+    @test isdefined(FerriteGridUtil, :get_interface_between_sets) 
 end

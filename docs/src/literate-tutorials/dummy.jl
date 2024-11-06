@@ -15,7 +15,7 @@ using Ferrite, FerriteGridUtil
 
 # Then, we do a computation.
 
-get_volume()
+1 + 1 == 2 ? true : false
 
 #md # ## [Plain program](@id tutorial-dummy-plain-program)
 #md #

@@ -1,12 +1,20 @@
 module FerriteGridUtil
-using Ferrite, Makie
+
+using Ferrite
+using OrderedCollections: OrderedSet
+using Makie: Makie, GeometryBasics
+using HDF5: h5open, create_group, read, close
+
+# Internal helper functions
+include("helper.jl")
+
 # Functions to compute properties of a grid
 include("property.jl")
-export get_volume, get_bounds, get_interface_between_sets, test
+export get_moment, get_coordinate_limits, get_interface_between_sets
 
 # Functions to manipulate a grid
 include("manipulation.jl")
-export scale_relative_to, scale_relative_to!, shift_by, shift_by!
+export scale_relative, scale_relative!, shift_by, shift_by!
 
 # Functions to save and load a grid
 include("saveload.jl")

@@ -1,5 +1,6 @@
 # Converting to other mesh types
 
-```@docs
-convert_to_makie_mesh
+```@autodocs
+Modules = [FerriteGridUtil]
+Pages   = ["conversion.jl"]
 ```

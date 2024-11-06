@@ -1,76 +1,76 @@
-
+# TODO: test, document
 """
-    get_volume()
+    get_moment()
 
 Return the volume.
 """
-function get_volume()
-    return missing
+function get_moment(grid::Grid{dim}, order::Int; 
+        cellset::Union{String,AbstractSet{Int}}=OrderedSet{Int}(1:getncells(grid)), 
+        refpoint::Vec{dim}=zero(Vec{dim})) where {dim}
+    if cellset isa String
+        cellset = getcellset(grid, cellset)
+    end
+    cellidsbytype = _get_cellids_by_type(grid, cellset)
+    return _compute_moment(grid, Val(order), cellidsbytype, refpoint)
 end
-# TODO: implementation to compute the volume (area in 2D -> same name?) of the whole grid or just a cellset
-# -> Compare computation time of computing the volume by integration or from the node coordinates?
-# -> How to treat embedded elements and mixed grids?
-# -> Idea: generalize to "get_moment" to also compute 1st and 2nd order moments e.g. integrating "1", "x-x̂", "(x-x̂)⊗(x-x̂)"
 
-#= # Computing the volume by integration
-
-function get_volume(grid::Grid{dim}, cellset::AbstractSet{Int})
-    # prepare dh, cv
-    V = 0.0
-    for cc in CellIterator(dh, cellset)
-        Ferrite.reinit!(cv, cc) 
-        for qp in 1:getnquadpoints(cv)
-            V += getdetJdV(cv, qp)
+function _compute_moment(grid::Grid{dim}, order::Val{ord}, cellidsbytype::Dict{DataType,OrderedSet{Int}}, refpoint::Vec{dim}) where {dim, ord}
+    m = _init_moment(order, dim)
+    for (T, cellids) in cellidsbytype
+        cv = _init_cv(T, order)
+        for cellid in cellids
+            coords = getcoordinates(grid, cellid)
+            reinit!(cv, coords)
+            for qp in 1:getnquadpoints(cv)
+                dΩ = getdetJdV(cv, qp)
+                x  = spatial_coordinate(cv, qp, coords)
+                m += _compute_point_moment(x, refpoint, order) * dΩ
+            end
         end
     end
-    return V
-end
-=#
-
-#= # Computing the volume from the nodal coordinates
-function get_volume(nodes, ::Ferrite.Triangle)
-    a = norm(nodes[1].x .- nodes[2].x)
-    b = norm(nodes[1].x .- nodes[3].x)
-    c = norm(nodes[2].x .- nodes[3].x)
-    s = (a + b + c) / 2
-    return sqrt( s*(s-a)*(s-b)*(s-c) )
+    return m
 end
 
-function get_volume(grid::Grid, i::Integer)
-    cell = getcells(grid, i)
-    return get_volume(getnodes(grid, [cell.nodes...]), cell)
+_init_moment(::Val{0}, dim::Int) = 0.0
+_init_moment(::Val{1}, dim::Int) = zero(Vec{dim})
+_init_moment(::Val{2}, dim::Int) = zero(Tensor{2,dim})
+
+function _init_cv(T::Type{<:Ferrite.AbstractCell{RefShape}}, ::Val{ord}) where {RefShape, ord}
+    qr  = QuadratureRule{RefShape}(1+ord)
+    ipf = Lagrange{RefShape,1}()
+    ipg = geometric_interpolation(T)
+    return CellValues(qr, ipf, ipg)
 end
 
-function get_volume(grid::Grid, cellset::AbstractSet{Int})
-    vol = 0.0
-    for i in cellset
-        vol +=  get_volume(grid, i)
-    end
-    return vol
-end
-get_volume(grid::Grid, cellset::String) = get_volume(grid, getcellset(grid, cellset))
-=#
+_compute_point_moment(x::Vec{dim}, x̂::Vec{dim}, ::Val{0}) where {dim} = 1.0
+_compute_point_moment(x::Vec{dim}, x̂::Vec{dim}, ::Val{1}) where {dim} = x - x̂
+_compute_point_moment(x::Vec{dim}, x̂::Vec{dim}, ::Val{2}) where {dim} = (x - x̂) ⊗ (x - x̂)
 
+###################################################################################################
+###################################################################################################
+# TODO: test, document
+# -> Is it more efficient to not collect the coordinates in a matrix, but iterate over grid.nodes and check against current min and max?
 """
     get_coordinate_limits()
 
 Return the bounds.
 """
-function get_coordinate_limits(grid::Grid{3})
-    xyz = [ n.x[i] for n in grid.nodes, i in 1:3 ]
-    xmin, xmax, ymin, ymax, zmin, zmax = minimum(xyz[:,1]), maximum(xyz[:,1]), minimum(xyz[:,2]), maximum(xyz[:,2]), minimum(xyz[:,3]), maximum(xyz[:,3])
-    return ((xmin, xmax), (ymin, ymax), (zmin, zmax))
+function get_coordinate_limits(grid::Grid{dim}) where {dim}
+    coords = [ n.x[i] for n in grid.nodes, i in 1:dim ]
+    return Tuple( (minimum(coords[:,i]), maximum(coords[:,i])) for i in 1:dim )
 end
-# TODO: implementation to compute the minimum and maximum coordinates in all directions
-# -> Is it more efficient to not collect the coordinates in a matrix, but iterate over grid.nodes and check against current min and max?
-# -> Generalize to "dim D"
 
+###################################################################################################
+###################################################################################################
+# TODO: test, document
+# -> working for all dimensions like this?
+# -> return two facet sets, one from the perspective of each cell set?
 """
     get_interface_between_sets()
 
 Return the interface.
 """
-function get_interface_between_sets(grid::Grid{dim}, set¹::OrderedSet{Int}, set²::OrderedSet{Int}) where {dim}
+function get_interface_between_sets(grid::Grid{dim}, set¹::AbstractSet{Int}, set²::AbstractSet{Int}) where {dim}
     top = ExclusiveTopology(grid)
     Γⁱⁿᵗ = OrderedSet{FacetIndex}()
     for cellid¹ in set¹
@@ -86,39 +86,12 @@ function get_interface_between_sets(grid::Grid{dim}, set¹::OrderedSet{Int}, set
     end
     return Γⁱⁿᵗ
 end
-
-# add get_dofs_from_nodeid() 
-
-# TODO: implementation to compute set of facets connecting two sets of cells
-# -> working for all dimensions like this?
-# -> return two facet sets, one from the persepctive of each cell set?
-
-"""
-    get_dofs_from_coord(dh::Ferrite.DofHandler, x::Vector, dofs_per_node::Int64; radius=1e-3)
-
-Return the degrees of freedom corresponding to a node at coordinate `x`. 
-The node must be within a neighbourhood of radius `radius`. The default `radius` is 1e-4. `dofs_per_node` are the
-degrees of freedom per node (i.e. 3 for a 3D displacement problem)
-"""
-function get_dofs_from_coord(dh::DofHandler, x::Vector, dofs_per_node::Int64; radius=1e-4)
-    cells = getcells(dh.grid)
-    nodeid = nothing
-    # dof_range
-    @inline get_coords(n) = Ferrite.get_node_coordinate(dh.grid, n)
-    # iterate through the cells nodes and find the first 
-    # instance of the node id with coordinate in a ball of radius `radius` around x
-    for cellid in eachindex(cells) # !! possiblity for errors if cells is not indexed linearly !!
-        nodeid = findfirst(_x -> norm(_x - x) < radius, get_coords.(cells[cellid].nodes))
-        if !isnothing(nodeid)
-            node_dofs = Ferrite.celldofs(dh, cellid)[dofs_per_node*(nodeid-1)+1:dofs_per_node*nodeid]
-            return node_dofs
-        end
-    end
-    throw("No node was found with coordinate $x, try increasing radius")
+function get_interface_between_sets(grid, set¹::String, set²::String)
+    return get_interface_between_sets(grid, getcellset(grid, set¹), getcellset(grid, set²))
 end
-
-function get_dofs_from_nodeid(dh::DofHandler, )
-
-# dof_range(sdh::SubDofHandler, field_idx::Int)
-# dof_range(sdh::SubDofHandler, field_name::Symbol)
-# dof_range(dh:DofHandler, field_name::Symbol)
+function get_interface_between_sets(grid, set¹::String, set²::AbstractSet{Int})
+    return get_interface_between_sets(grid, getcellset(grid, set¹), set²)
+end
+function get_interface_between_sets(grid, set¹::AbstractSet{Int}, set²::String)
+    return get_interface_between_sets(grid, set¹, getcellset(grid, set²))
+end
