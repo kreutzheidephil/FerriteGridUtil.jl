@@ -44,9 +44,9 @@ function _init_cv(T::Type{<:Ferrite.AbstractCell{RefShape}}, ::Val{ord}) where {
     return CellValues(qr, ipf, ipg)
 end
 
-_compute_point_moment(x::Vec{dim}, x̂::Vec{dim}, ::Val{0}) where {dim} = 1.0
-_compute_point_moment(x::Vec{dim}, x̂::Vec{dim}, ::Val{1}) where {dim} = x - x̂
-_compute_point_moment(x::Vec{dim}, x̂::Vec{dim}, ::Val{2}) where {dim} = (x - x̂) ⊗ (x - x̂)
+@inline _compute_point_moment(x::Vec{dim}, x̂::Vec{dim}, ::Val{0}) where {dim} = 1.0
+@inline _compute_point_moment(x::Vec{dim}, x̂::Vec{dim}, ::Val{1}) where {dim} = x - x̂
+@inline _compute_point_moment(x::Vec{dim}, x̂::Vec{dim}, ::Val{2}) where {dim} = (x - x̂) ⊗ (x - x̂)
 
 ###################################################################################################
 ###################################################################################################
