@@ -108,8 +108,9 @@ The node must be within a neighbourhood of radius `radius`. The default `radius`
 function get_dofs_from_coord(dh::DofHandler{dim}, x::Vec{dim}, fieldname::Symbol; radius::Real=1e-3) where {dim}
     ip = Ferrite.getfieldinterpolation(dh, Ferrite.find_field(dh, fieldname))
     isa(ip, ScalarInterpolation) ? dofs_per_field = 1 : dofs_per_field = dim
-    cellid, node_position, found_node = _get_node_info_from_coord(dh, x; radius=radius)
+    nodeid, cellid, found_node = get_node_from_coord(dh, x; radius=radius)
     if found_node
+        node_position = findfirst(x -> x == nodeid, getcells(dh.grid)[cellid].nodes)
         cell_dofs = celldofs(dh, cellid)
         node_dofs = cell_dofs[dof_range(dh, fieldname)][dofs_per_field * (node_position - 1) + 1 : dofs_per_field * node_position]
         return node_dofs
@@ -122,7 +123,13 @@ function get_dofs_from_coord(dh::DofHandler{dim}, x::Vector, fieldname::Symbol; 
     return get_dofs_from_coord(dh, Tensors.Tensor{1,dim}(x), fieldname; radius=radius)
 end
 
-function _get_node_info_from_coord(dh::DofHandler{dim}, x::Vec{dim}; radius::Real=1e-3) where {dim}
+"""
+    get_node_from_coord(dh::DofHandler{dim}, x::Vec{dim}; radius::Real=1e-3) where {dim}
+
+Searh `grid` and return the node id for the first node within a neighbourhood of radius `radius` around `x`.
+A cell id to which the node belows, and a bool to signify a succesful search are also returned.
+"""
+function get_node_from_coord(dh::DofHandler{dim}, x::Vec{dim}; radius::Real=1e-3) where {dim}
     cells = getcells(dh.grid)
     node_position = nothing
     found_node = false
@@ -131,8 +138,13 @@ function _get_node_info_from_coord(dh::DofHandler{dim}, x::Vec{dim}; radius::Rea
         node_position = findfirst(_x -> norm(_x - x) < radius, _get_node_coords.(cells[cellid].nodes))
         if !isnothing(node_position)
             found_node = true
-            return cellid, node_position, found_node
+            nodeid = cells[cellid].nodes[node_position]
+            return nodeid, cellid, found_node
         end
     end
     return nothing, nothing, found_node
+end
+
+function get_node_from_coord(dh::DofHandler{dim}, x::Vector; radius::Real=1e-3) where {dim}
+    return get_node_from_coord(dh, Tensors.Tensor{1,dim}(x); radius=radius)
 end

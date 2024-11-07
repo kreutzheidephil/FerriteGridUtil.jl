@@ -6,7 +6,7 @@ ny = 5
 nz = 5
 order = 1
 # x = Vec(-1/2, -1/2, 0.1)
-x = [-1/2, -1/2, -1/2]
+x = [-1/2, -1/2, 1/2]
 
 grid = Ferrite.generate_grid(Hexahedron, (nx, ny, nz), Vec{3}((-1/2, -1/2, -1/2)), Vec{3}((1/2, 1/2, 1/2)))
 
