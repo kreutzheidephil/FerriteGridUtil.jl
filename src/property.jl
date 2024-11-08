@@ -53,9 +53,9 @@ end
 # TODO: test, document
 # -> Is it more efficient to not collect the coordinates in a matrix, but iterate over grid.nodes and check against current min and max?
 """
-    get_coordinate_limits()
+    get_coordinate_limits(grid::Grid{dim}) where {dim}
 
-Return the bounds.
+Return a tuple of the minimum and maximum values for each `grid` direction.
 """
 function get_coordinate_limits(grid::Grid{dim}) where {dim}
     coords = [ n.x[i] for n in grid.nodes, i in 1:dim ]
@@ -70,7 +70,7 @@ end
 """
     get_interface_between_sets(grid::Grid{dim}, set¹::AbstractSet{Int}, set²::AbstractSet{Int}) where {dim}
 
-Return the interface between `set¹` and `set²`.
+Return an `OrderedSet{FacetIndex}` of the facets building an interface between the two sets `set¹` and `set²`.
 """
 function get_interface_between_sets(grid::Grid{dim}, set¹::AbstractSet{Int}, set²::AbstractSet{Int}) where {dim}
     top = ExclusiveTopology(grid)
@@ -100,15 +100,15 @@ function get_interface_between_sets(grid, set¹::AbstractSet{Int}, set²::String
 end
 
 """
-    get_dofs_from_coord(dh::DofHandler{dim}, x::Vec{dim}, fieldname::Symbol; radius::Real=1e-3) where {dim}
+    get_dofs_from_coordindate(dh::DofHandler{dim}, x::Vec{dim}, fieldname::Symbol; radius::Real=1e-3) where {dim}
 
 Return the degrees of freedom corresponding to `fieldname` for a node at coordinate `x`. 
 The node must be within a neighbourhood of radius `radius`. The default `radius` is 1e-3.
 """
-function get_dofs_from_coord(dh::DofHandler{dim}, x::Vec{dim}, fieldname::Symbol; radius::Real=1e-3) where {dim}
+function get_dofs_from_coordinate(dh::DofHandler{dim}, x::Vec{dim}, fieldname::Symbol; radius::Real=1e-3) where {dim}
     ip = Ferrite.getfieldinterpolation(dh, Ferrite.find_field(dh, fieldname))
     isa(ip, ScalarInterpolation) ? dofs_per_field = 1 : dofs_per_field = dim
-    nodeid, cellid, found_node = get_node_from_coord(dh, x; radius=radius)
+    nodeid, cellid, found_node = get_node_from_coordinate(dh, x; radius=radius)
     if found_node
         node_position = findfirst(x -> x == nodeid, getcells(dh.grid)[cellid].nodes)
         cell_dofs = celldofs(dh, cellid)
@@ -119,17 +119,17 @@ function get_dofs_from_coord(dh::DofHandler{dim}, x::Vec{dim}, fieldname::Symbol
     end
 end
 
-function get_dofs_from_coord(dh::DofHandler{dim}, x::Vector, fieldname::Symbol; radius::Real=1e-3) where {dim}
-    return get_dofs_from_coord(dh, Tensors.Tensor{1,dim}(x), fieldname; radius=radius)
+function get_dofs_from_coordinate(dh::DofHandler{dim}, x::Vector, fieldname::Symbol; radius::Real=1e-3) where {dim}
+    return get_dofs_from_coordinate(dh, Tensors.Tensor{1,dim}(x), fieldname; radius=radius)
 end
 
 """
-    get_node_from_coord(dh::DofHandler{dim}, x::Vec{dim}; radius::Real=1e-3) where {dim}
+    get_node_from_coordinate(dh::DofHandler{dim}, x::Vec{dim}; radius::Real=1e-3) where {dim}
 
 Searh `grid` and return the node id for the first node within a neighbourhood of radius `radius` around `x`.
 A cell id to which the node belows, and a bool to signify a succesful search are also returned.
 """
-function get_node_from_coord(dh::DofHandler{dim}, x::Vec{dim}; radius::Real=1e-3) where {dim}
+function get_node_from_coordinate(dh::DofHandler{dim}, x::Vec{dim}; radius::Real=1e-3) where {dim}
     cells = getcells(dh.grid)
     node_position = nothing
     found_node = false
@@ -145,6 +145,6 @@ function get_node_from_coord(dh::DofHandler{dim}, x::Vec{dim}; radius::Real=1e-3
     return nothing, nothing, found_node
 end
 
-function get_node_from_coord(dh::DofHandler{dim}, x::Vector; radius::Real=1e-3) where {dim}
-    return get_node_from_coord(dh, Tensors.Tensor{1,dim}(x); radius=radius)
+function get_node_from_coordindate(dh::DofHandler{dim}, x::Vector; radius::Real=1e-3) where {dim}
+    return get_node_from_coordinate(dh, Tensors.Tensor{1,dim}(x); radius=radius)
 end
