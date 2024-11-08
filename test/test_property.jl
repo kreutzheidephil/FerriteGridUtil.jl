@@ -8,8 +8,8 @@
         @test isapprox(get_moment(grid, 1), onevec; rtol=1e-8)
     end
     @testset "2ⁿᵈ moment for grid with $(T) cells" for (T, grid) in simplegrids
-        onevec = Vec{Ferrite.getspatialdim(grid)}(i -> 1.0)
-        @test isapprox(get_moment(grid, 2), onevec; rtol=1e-8)
+        MomentTensor = SymmetricTensor{2,Ferrite.getspatialdim(grid)}((i,j) -> i==j ? 13/12 : 1)
+        @test isapprox(get_moment(grid, 2), MomentTensor; rtol=1e-8)
     end
 end
 

@@ -4,7 +4,7 @@ using Test
 
 corners = Dict([ # Points such that: volume==1, center_of_mass==one(Vec{dim})
     1 => [Vec{1}((0.5,)), Vec{1}((1.5,))],
-    2 => [Vec{2}((0.0,0.5)), Vec{2}((1.0,0.5)), Vec{2}((2.0,1.5)), Vec{2}((1.0,1.5))],
+    2 => [Vec{2}((0.5,0.5)), Vec{2}((1.5,0.5)), Vec{2}((1.5,1.5)), Vec{2}((0.5,1.5))],
     3 => [Vec{3}((0.5,0.5,0.5)), Vec{3}((1.5,1.5,1.5))]
     ])
 celltypes = Dict([
