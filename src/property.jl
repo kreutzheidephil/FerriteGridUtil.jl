@@ -126,8 +126,8 @@ end
 """
     get_node_from_coordinate(dh::DofHandler{dim}, x::Vec{dim}; radius::Real=1e-3) where {dim}
 
-Searh `grid` and return the node id for the first node within a neighbourhood of radius `radius` around `x`.
-A cell id to which the node belows, and a bool to signify a succesful search are also returned.
+Search `grid` for the first node within a neighbourhood of radius `radius` around `x`.
+The node id, a cell id to which the node belongs and a bool to signify a succesful search are returned.
 """
 function get_node_from_coordinate(dh::DofHandler{dim}, x::Vec{dim}; radius::Real=1e-3) where {dim}
     cells = getcells(dh.grid)
