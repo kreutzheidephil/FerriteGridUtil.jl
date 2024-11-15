@@ -15,7 +15,7 @@ end
 
 ###################################################################################################
 ###################################################################################################
-# TODO: change 2D grid generation to using two vectors, then write test for limits 
+
 @testset "get_coordinate_limits()" begin
     @test isdefined(FerriteGridUtil, :get_coordinate_limits)
     @testset "$(Ferrite.getspatialdim(grid))D grid limits with $(T) cells" for (T, grid) in simplegrids
@@ -32,9 +32,9 @@ end
 ###################################################################################################
 
 @testset "get_interface_between_sets()" begin
-    @test isdefined(FerriteGridUtil, :get_interface_between_sets) 
+    @test isdefined(FerriteGridUtil, :get_interface_between_sets)
 end
 
 @testset "get_dofs_from_coordinate()" begin
-    @test isdefined(FerriteGridUtil, :get_dofs_from_coordinate) 
+    @test isdefined(FerriteGridUtil, :get_dofs_from_coordinate)
 end
