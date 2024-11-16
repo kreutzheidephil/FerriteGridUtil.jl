@@ -24,7 +24,23 @@ add!(dh, :u, ipu)
 add!(dh, :p, ipp)
 close!(dh)
 
-scalefactor = 2.0
-refpoint = zero(Vec{dim})
+shiftvalue = rand(Vec{dim})
+scalefactor = rand()
+refpoint = rand(Vec{dim})
 
+grid_shifted = FerriteGridUtil.shift_by(grid, shiftvalue)
 grid_scaled = FerriteGridUtil.scale_relative(grid, scalefactor; refpoint)
+
+for (n, n_shifted) in zip(grid.nodes, grid_shifted.nodes)
+    if !(n_shifted.x - n.x  ≈ shiftvalue)
+        println("failed shift test")
+    end
+end
+
+for (n, n_scaled) in zip(grid.nodes, grid_scaled.nodes)
+    if !(n_scaled.x ≈ refpoint + scalefactor*(n.x - refpoint))
+        println("failed scale test")
+    end
+end
+
+shiftvaluevec = collect(n_shifted.x - n.x for (n, n_shifted) in zip(grid.nodes, grid_shifted.nodes))
