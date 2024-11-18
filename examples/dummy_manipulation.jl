@@ -24,9 +24,9 @@ add!(dh, :u, ipu)
 add!(dh, :p, ipp)
 close!(dh)
 
-shiftvalue = rand(Vec{dim})
+shiftvalue = Vec{3}(i -> 1.0)#rand(Vec{dim})
 scalefactor = rand()
-refpoint = rand(Vec{dim})
+refpoint = Vec{3}((0.5,0.5,0.5))#rand(Vec{dim})
 
 grid_shifted = FerriteGridUtil.shift_by(grid, shiftvalue)
 grid_scaled = FerriteGridUtil.scale_relative(grid, scalefactor; refpoint)
@@ -43,4 +43,26 @@ for (n, n_scaled) in zip(grid.nodes, grid_scaled.nodes)
     end
 end
 
-shiftvaluevec = collect(n_shifted.x - n.x for (n, n_shifted) in zip(grid.nodes, grid_shifted.nodes))
+function LeviCivita(i)
+    return 1
+end
+
+function LeviCivita(i, j)
+    if (i, j) in [(1, 2)]
+        return 1
+    elseif (i, j) in [(2, 1)]
+        return -1
+    else
+        return 0
+    end
+end
+
+function LeviCivita(i, j, k)
+    if (i, j, k) in [(1, 2, 3), (2, 3, 1), (3, 1, 2)]
+        return 1
+    elseif (i, j, k) in [(3, 2, 1), (2, 1, 3), (1, 3, 2)]
+        return -1
+    else
+        return 0
+    end
+end
