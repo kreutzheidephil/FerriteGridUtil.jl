@@ -14,17 +14,17 @@
 Saves the grid to a file.
 """
 function save()
-    return missing    
+    return missing 
 end
 
-#=
-function save_grid(grid::Grid{3,Tetrahedron}, filepath::String)
+
+function save(grid::Grid{dim, celltype}, filepath::String) where {dim, celltype}
     f = h5open(filepath, "w")
 
     g = create_group(f, "nodes")
     g["coords"] = collect(n.x.data for n in grid.nodes)
 
-    g = create_group(f, "tetrahedra")
+    g = create_group(f, string(celltype))
     g["nodeids"] = collect(cell.nodes for cell in grid.cells)
 
     g = create_group(f, "face sets")
@@ -40,7 +40,7 @@ function save_grid(grid::Grid{3,Tetrahedron}, filepath::String)
     close(f)
     return grid
 end
-=#
+
 
 ###################################################################################################
 ###################################################################################################
@@ -54,20 +54,46 @@ function load()
     return missing    
 end
 
-#=
-function read_grid(filepath::String)
+# celltypenames = Dict([
+#     "Line" => Line, 
+#     "QuadraticLine" => QuadraticLine,
+#     "Triangle" => Triangle, 
+#     "QuadraticTriangle" => QuadraticTriangle, 
+#     "Quadrilateral" => Quadrilateral, 
+#     "QuadraticQuadrilateral" => QuadraticQuadrilateral,
+#     "Tetrahedron" => Tetrahedron,
+#     "Hexahedron" => Hexahedron
+#     ])
+celltypenames = (
+    "Line", 
+    "QuadraticLine",
+    "Triangle", 
+    "QuadraticTriangle", 
+    "Quadrilateral", 
+    "QuadraticQuadrilateral" ,
+    "Tetrahedron",
+    "Hexahedron"
+    )
+
+function load(filepath::String)
     f = h5open(filepath, "r")
 
     g = f["nodes"]
     coords = read(g, "coords")
     dim = length(coords[1])
     nodes = collect( Node(Tensor{1,dim}(values(c))) for c in coords )
-    
-    if haskey(f, "tetrahedra")
-        g = f["tetrahedra"]
-        cells = collect( Tetrahedron(values(n)) for n in read(g, "nodeids") )
-    end
 
+###########################################
+    # loop through cell types
+    for cellname in celltypenames 
+        if haskey(f, cellname)
+            g = f[cellname]
+            celltype = eval(Symbol(cellname))
+            cells = collect( celltype(values(n)) for n in read(g, "nodeids") )
+            break
+        end
+    end
+################################
     g = f["face sets"]
     if isempty(keys(g))
         facetsets = Dict{String,Set{FaceIndex}}()
@@ -88,4 +114,5 @@ function read_grid(filepath::String)
     close(f)
     return Grid(cells, nodes; facetsets=facetsets, cellsets=cellsets)
 end
-=#
+
+# function _extract_cells()
