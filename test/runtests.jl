@@ -20,21 +20,21 @@ simplegrids = Dict([
 
     mixedgrids = Dict{Int,Vector{Grid}}() # TODO: Also have some tests for mixed grids
 
-    # @testset "Computing properties" begin
-    #     include("test_property.jl")
-    # end
+    @testset "Computing properties" begin
+        include("test_property.jl")
+    end
     
     @testset "Manipulating" begin
         include("test_manipulation.jl")
     end
 
-    # @testset "Saving and loading" begin
-    #     include("test_saveload.jl")
-    # end
+    @testset "Saving and loading" begin
+        include("test_saveload.jl")
+    end
 
-    # @testset "Converting the grid" begin
-    #     include("test_conversion.jl")
-    # end
+    @testset "Converting the grid" begin
+        include("test_conversion.jl")
+    end
 end
 
 @info "Tests finished"
