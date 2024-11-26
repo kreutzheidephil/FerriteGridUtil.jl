@@ -11,7 +11,7 @@
 """
     save(grid::Grid{dim, celltype}, filepath::String) where {dim, celltype}
 
-Saves the grid to a file.
+Saves a grid `grid` in an HDF5 file at `filepath`.
 """
 function save(grid::Grid{dim, celltype}, filepath::String) where {dim, celltype}
     f = h5open(filepath, "w")
@@ -27,18 +27,21 @@ function _save_nodes!(f, grid::Grid{dim, celltype}) where {dim, celltype}
     g = create_group(f, "nodes")
     g["coords"] = collect(n.x.data for n in grid.nodes) 
 end
+
 function _save_facetssets!(f, grid::Grid{dim, celltype}) where {dim, celltype}
     g = create_group(f, "face sets")
     for (name, set) in pairs(grid.facetsets)
         g[name] = collect( set )
     end
 end
+
 function _save_cellsets!(f, grid::Grid{dim, celltype}) where {dim, celltype}
     g = create_group(f, "cell sets")
     for (name, set) in pairs(grid.cellsets)
         g[name] = collect( set )
     end
 end
+
 function _save_cells!(f, grid::Grid{dim, celltype}) where {dim, celltype}
     g = create_group(f, string(celltype))
     g["nodeids"] = collect(cell.nodes for cell in grid.cells)
@@ -83,6 +86,7 @@ function _load_facetsets(f)
     end
     return facetsets
 end
+
 function _load_cellsets(f)
     g = f["cell sets"]
     if isempty(keys(g))
@@ -92,6 +96,7 @@ function _load_cellsets(f)
     end
     return cellsets
 end
+
 function _load_cells(f)
     cells = nothing
     for cellname in celltypenames
@@ -108,6 +113,11 @@ function _load_cells(f)
     return cells
 end
 
+"""
+    load(filepath::String)
+
+Returns a grid saved usedin `@refpoint` from an HDF5 file saved at `filepath`.
+"""
 function load(filepath::String)
     f = h5open(filepath, "r")
     nodes = _load_nodes(f)
