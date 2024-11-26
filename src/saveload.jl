@@ -9,61 +9,45 @@
 # -> .stl file for whole grid and only a cellset?
 
 """
-    save()
+    save(grid::Grid{dim, celltype}, filepath::String) where {dim, celltype}
 
 Saves the grid to a file.
 """
-function save()
-    return missing 
-end
-
-
 function save(grid::Grid{dim, celltype}, filepath::String) where {dim, celltype}
     f = h5open(filepath, "w")
-
-    g = create_group(f, "nodes")
-    g["coords"] = collect(n.x.data for n in grid.nodes)
-
-    g = create_group(f, string(celltype))
-    g["nodeids"] = collect(cell.nodes for cell in grid.cells)
-
-    g = create_group(f, "face sets")
-    for (name, set) in grid.facetsets
-        g[name] = collect( f.idx for f in set )
-    end
-
-    g = create_group(f, "cell sets")
-    for (name, set) in grid.cellsets
-        g[name] = collect( set )
-    end
-
+    _save_nodes!(f, grid)
+    _save_facetssets!(f, grid)
+    _save_cellsets!(f, grid)
+    _save_cells!(f, grid)
     close(f)
     return grid
 end
 
+function _save_nodes!(f, grid::Grid{dim, celltype}) where {dim, celltype}
+    g = create_group(f, "nodes")
+    g["coords"] = collect(n.x.data for n in grid.nodes) 
+end
+function _save_facetssets!(f, grid::Grid{dim, celltype}) where {dim, celltype}
+    g = create_group(f, "face sets")
+    for (name, set) in pairs(grid.facetsets)
+        g[name] = collect( set )
+    end
+end
+function _save_cellsets!(f, grid::Grid{dim, celltype}) where {dim, celltype}
+    g = create_group(f, "cell sets")
+    for (name, set) in pairs(grid.cellsets)
+        g[name] = collect( set )
+    end
+end
+function _save_cells!(f, grid::Grid{dim, celltype}) where {dim, celltype}
+    g = create_group(f, string(celltype))
+    g["nodeids"] = collect(cell.nodes for cell in grid.cells)
+end
 
 ###################################################################################################
 ###################################################################################################
 # TODO: implement, test, document
-"""
-    load()
 
-loads a grid from a file.
-"""
-function load()
-    return missing    
-end
-
-# celltypenames = Dict([
-#     "Line" => Line, 
-#     "QuadraticLine" => QuadraticLine,
-#     "Triangle" => Triangle, 
-#     "QuadraticTriangle" => QuadraticTriangle, 
-#     "Quadrilateral" => Quadrilateral, 
-#     "QuadraticQuadrilateral" => QuadraticQuadrilateral,
-#     "Tetrahedron" => Tetrahedron,
-#     "Hexahedron" => Hexahedron
-#     ])
 celltypenames = (
     "Line", 
     "QuadraticLine",
@@ -75,44 +59,61 @@ celltypenames = (
     "Hexahedron"
     )
 
-function load(filepath::String)
-    f = h5open(filepath, "r")
 
+function _load_nodes(f)
     g = f["nodes"]
     coords = read(g, "coords")
     dim = length(coords[1])
-    nodes = collect( Node(Tensor{1,dim}(values(c))) for c in coords )
+    nodes = collect( Node(Tensor{1, dim}(values(c))) for c in coords )
+    return nodes
+end
 
-###########################################
-    # loop through cell types
-    for cellname in celltypenames 
-        if haskey(f, cellname)
-            g = f[cellname]
-            celltype = eval(Symbol(cellname))
-            cells = collect( celltype(values(n)) for n in read(g, "nodeids") )
-            break
-        end
-    end
-################################
+function _load_facetsets(f)
     g = f["face sets"]
     if isempty(keys(g))
         facetsets = Dict{String,Set{FaceIndex}}()
     else
-        facetsets = Dict(collect( begin
-                facetids = collect( FacetIndex(values(f)) for f in read(g, key) )
-                key => Set(facetids) end 
-            for key in keys(g) ))
+        facetsets = Dict(
+            collect( begin
+                # facetids = collect( FacetIndex(values(f)) for f in read(g, key) )
+                facetids = collect( FacetIndex(values(f...)) for f in read(g, key) )
+                    key => Set(facetids) end
+            for key in keys(g) )
+                )
     end
-
+    return facetsets
+end
+function _load_cellsets(f)
     g = f["cell sets"]
     if isempty(keys(g))
         cellsets = Dict{String,Set{Int}}()
     else
         cellsets = Dict(collect( key => Set(read(g, key)) for key in keys(g) ))
     end
+    return cellsets
+end
+function _load_cells(f)
+    cells = nothing
+    for cellname in celltypenames
+        if haskey(f, cellname)
+            g = f[cellname]
+            celltype = eval(Symbol(cellname))
+            cells = collect( celltype(values(n)) for n in read(g, "nodeids") )
+            return cells
+        end
+    end
+    if isnothing(cells)
+        throw(error("the file does not contain a group for one of the following cell types $celltypenames"))
+    end
+    return cells
+end
 
+function load(filepath::String)
+    f = h5open(filepath, "r")
+    nodes = _load_nodes(f)
+    facetsets = _load_facetsets(f)
+    cellsets = _load_cellsets(f)
+    cells = _load_cells(f)
     close(f)
     return Grid(cells, nodes; facetsets=facetsets, cellsets=cellsets)
 end
-
-# function _extract_cells()

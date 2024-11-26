@@ -23,6 +23,7 @@ dh = DofHandler(grid)
 add!(dh, :u, ipu)
 add!(dh, :p, ipp)
 close!(dh)
-path = raw"C:\Users\philc\.julia\dev\FerriteGridUtil\examples"
-save(grid, path)
-
+# path = raw"C:\Users\philc\OneDrive\Desktop\testfile.h5"
+path = raw"C:\Users\philc\.julia\dev\FerriteGridUtil\examples\dummygridfile.h5"
+# save(grid, path)
+grid_saved = load(path)
