@@ -78,7 +78,6 @@ function _load_facetsets(f)
     else
         facetsets = Dict(
             collect( begin
-                # facetids = collect( FacetIndex(values(f)) for f in read(g, key) )
                 facetids = collect( FacetIndex(values(f...)) for f in read(g, key) )
                     key => Set(facetids) end
             for key in keys(g) )
