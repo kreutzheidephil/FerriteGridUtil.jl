@@ -4,4 +4,9 @@ docs/src/tutorials/dummy.jl
 docs/src/tutorials/dummy.md
 docs/src/tutorials/periodic-rve.msh
 docs/src/tutorials/periodic-rve-coarse.msh
-# examples/
+examples/Manifest.toml
+examples/Project.toml
+examples/dummy_manipulation.jl
+examples/dummy_property.jl
+examples/dummy_saveload.jl
+examples/dummgridfile.h5
