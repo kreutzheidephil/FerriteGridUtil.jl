@@ -10,7 +10,7 @@ include("helper.jl")
 
 # Functions to compute properties of a grid
 include("property.jl")
-export get_moment, get_coordinate_limits, get_interface_between_sets
+export get_moment, get_coordinate_limits, get_interface_between_sets, get_dofs_from_coordinate, get_node_from_coordinate
 
 # Functions to manipulate a grid
 include("manipulation.jl")

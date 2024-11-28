@@ -4,7 +4,7 @@ using Test
 
 corners = Dict([ # Points such that: volume==1, center_of_mass==one(Vec{dim})
     1 => [Vec{1}((0.5,)), Vec{1}((1.5,))],
-    2 => [Vec{2}((0.0,0.5)), Vec{2}((1.0,0.5)), Vec{2}((2.0,1.5)), Vec{2}((1.0,1.5))],
+    2 => [Vec{2}((0.5,0.5)), Vec{2}((1.5,1.5))],
     3 => [Vec{3}((0.5,0.5,0.5)), Vec{3}((1.5,1.5,1.5))]
     ])
 celltypes = Dict([
@@ -17,8 +17,7 @@ simplegrids = Dict([
     for dim in 1:3 for T in celltypes[dim]])
 
 @testset "FerriteGridUtil.jl" begin
-   
-    
+
     mixedgrids = Dict{Int,Vector{Grid}}() # TODO: Also have some tests for mixed grids
 
     @testset "Computing properties" begin
