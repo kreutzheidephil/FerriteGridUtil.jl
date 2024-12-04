@@ -11,7 +11,7 @@ Return a mesh that can be used for plotting with Makie.jl. A WIP: currently only
 """
 function convert_to_makie_mesh(grid::Grid{dim}; 
     cellset::Union{Vector{<:Ferrite.AbstractCell},OrderedSet{Int},String} = OrderedSet{Int}(1:getncells(grid))) where {dim}
-    nodes = [n.x for n in grid.nodes]
+    nodes = [ n.x for n in grid.nodes ]
     return convert_to_makie_mesh(nodes, _convert_set_to_vec(grid, cellset)) # calls 2
 end
 
