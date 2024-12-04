@@ -23,5 +23,4 @@ export save, load
 # Functions to convert a grid to a mesh-type of a different package
 include("conversion.jl")
 export convert_to_makie_mesh
-
 end
