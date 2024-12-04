@@ -26,16 +26,27 @@ add!(dh, :p, ipp)
 close!(dh)
 cellset = "all-cells"
 allcells = getcellset(grid, "all-cells")
-println("type of allcells: $(typeof(allcells))")
-println("type of cellset: $(typeof(cellset))")
-println("type of grid.cells: $(typeof(grid.cells))")
+@show typeof(cellset)
+@show typeof(allcells)
+@show typeof(grid.cells)
 
-convert_to_makie_mesh(grid; cellset = cellset)
-convert_to_makie_mesh(grid; cellset = allcells)
-convert_to_makie_mesh(grid; cellset = grid.cells)
-convert_to_makie_mesh(grid)
+# Idea is to get the nodes corresponding to a cell set to plot sub domains. Does the order of 
+# nodes matter (when passed to convert_to_makie_mesh())?
+function _get_nodes_from_cells(cellset::String)
+    return grid.nodes[collect(getcellset(grid, cellset))]
+end
 
-# function testcall(grid::Grid{dim}, all_cells::OrderedSet) where dim
-#     println("successfull call")
-#     grid
-# end
+function _get_nodes_from_cells(cellset::OrderedSet{Int})
+    return grid.nodes[collect(cellset)]
+end
+
+function _get_nodes_from_cells(cellset::Vector{<:Ferrite.AbstractCell})
+    return missing
+end
+
+# convert_to_makie_mesh(grid; cellset = allcells)
+# convert_to_makie_mesh(grid; cellset = grid.cells)
+# convert_to_makie_mesh(grid)
+
+# displacement = collect(zero(Vec{dim}) for i in 1:getnnodes(grid))
+# convert_to_makie_mesh(grid, displacement, grid.cells)
