@@ -1,5 +1,4 @@
 module FerriteGridUtil
-
 using Ferrite
 using OrderedCollections: OrderedSet
 using Makie: Makie, GeometryBasics
