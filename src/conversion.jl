@@ -10,14 +10,14 @@ Return a mesh that can be used for plotting with Makie.jl. The keyword arguments
  - `displ`: a `Vector{Vec{dim, T}}` containing the nodal displacements to plot a deformed grid. The default is undeformed.
  - a `cellset` to plot a subdomain of the grid, the default is the entire `grid`.
 """
-function convert_to_makie_mesh(grid::Grid{dim}; displ::Union{Vector{Vec{dim, T}}, Nothing} = nothing, cellset::Union{Vector{<:Ferrite.AbstractCell},OrderedSet{Int},String} = getcells(grid)) where {dim, T}
+function convert_to_makie_mesh(grid::Grid{dim}; displ::Union{Vector{<:Vec{dim, T}}, Nothing} = nothing, cellset::Union{Vector{<:Ferrite.AbstractCell},OrderedSet{Int},String} = getcells(grid)) where {dim, T}
     return _convert_to_makie_mesh(grid, displ, cellset)
 end
 
-_convert_to_makie_mesh(grid::Grid{dim}, displ::Union{Vector{Vec{dim, T}}, Nothing}, cellset::OrderedSet{Int}) where {dim, T} = _convert_to_makie_mesh(grid, displ, getcells(grid)[collect(cellset)])
-_convert_to_makie_mesh(grid::Grid{dim}, displ::Union{Vector{Vec{dim, T}}, Nothing}, cellset::String) where {dim, T} = _convert_to_makie_mesh(grid, displ, getcellset(grid, cellset))
+_convert_to_makie_mesh(grid::Grid{dim}, displ::Union{Vector{<:Vec{dim, T}}, Nothing}, cellset::OrderedSet{Int}) where {dim, T} = _convert_to_makie_mesh(grid, displ, getcells(grid)[collect(cellset)])
+_convert_to_makie_mesh(grid::Grid{dim}, displ::Union{Vector{<:Vec{dim, T}}, Nothing}, cellset::String) where {dim, T} = _convert_to_makie_mesh(grid, displ, getcellset(grid, cellset))
 
-function _convert_to_makie_mesh(grid::Grid{dim}, displ::Vector{Vec{dim, T}}, cellset::Vector{<:Ferrite.AbstractCell}) where {dim, T}
+function _convert_to_makie_mesh(grid::Grid{dim}, displ::Vector{<:Vec{dim, T}}, cellset::Vector{<:Ferrite.AbstractCell}) where {dim, T}
     @assert length(displ) == getnnodes(grid)
     nodes = [(n.x + u) for (n, u) in zip(grid.nodes, displ)]
     return _convert_to_makie_mesh(nodes, cellset)
@@ -27,7 +27,7 @@ function _convert_to_makie_mesh(grid::Grid{dim}, ::Nothing, cellset::Vector{<:Fe
     return _convert_to_makie_mesh(nodes, cellset)
 end
 
-function _convert_to_makie_mesh(nodes::Vector{Vec{dim, T}}, cells::Vector{<:Ferrite.AbstractCell}) where {dim, T}
+function _convert_to_makie_mesh(nodes::Vector{<:Vec{dim, T}}, cells::Vector{<:Ferrite.AbstractCell}) where {dim, T}
     nodes = _convert_vec_to_makie.(nodes)
     cells = vcat(_convert_cell_to_makie.(cells )...)
     return Makie.GeometryBasics.Mesh(nodes, cells)
