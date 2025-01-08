@@ -1,4 +1,5 @@
 /Manifest.toml
+.vscode/settings.json
 docs/build/
 docs/src/tutorials/dummy.jl
 docs/src/tutorials/dummy.md
