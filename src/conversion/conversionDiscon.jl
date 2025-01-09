@@ -39,17 +39,20 @@ function _convert_to_makie_mesh(grid::Grid{dim}, ::Nothing, disconnectcells::Boo
     return _convert_to_makie_mesh(nodes, Val(disconnectcells), cellset)
 end
 function _convert_to_makie_mesh(nodes::Vector{Vec{dim, T}}, ::Val{false}, cells::Vector{C}) where {dim, T, C<:Ferrite.AbstractCell}
+    println("connected function")
     makienodes = _convert_vec_to_makie.(nodes)
     makiefacepercell, CM = _get_makie_type_data(C)
     makiecells = Vector{CM}(undef, length(cells) * makiefacepercell)
     for (i, cell) in enumerate(cells)
         makiecells[1+(i-1)*makiefacepercell:i*makiefacepercell] .= _convert_cell_to_makie(cell)
     end
-    # return vcat(_convert_cell_to_makie.(cells )...)
+    @show length(makienodes)
+    @show length(makiecells)
     return Makie.GeometryBasics.Mesh(makienodes, makiecells)
 end
 
 function _convert_to_makie_mesh(nodes::Vector{Vec{dim, T}}, ::Val{true}, cells::Vector{C}) where {dim, T, C<:Ferrite.AbstractCell}
+    println("disconnected function")
     makiefacepercell, CM = _get_makie_type_data(C)
     nodespercell = Ferrite.nnodes(first(cells))
     makienodes = Vector{Makie.GeometryBasics.Point{dim,Float64}}(undef, length(cells)*nodespercell)
@@ -60,6 +63,9 @@ function _convert_to_makie_mesh(nodes::Vector{Vec{dim, T}}, ::Val{true}, cells::
         disconnected_cell = C(Tuple(n for n in noderange)) # Create a new cell using the copied nodes
         makiecells[1+(i-1)*makiefacepercell:i*makiefacepercell] .= _convert_cell_to_makie(disconnected_cell) # Convert the new cell to Makie
     end
+    @show length(makienodes)
+    # @show makienodes[1:4]
+    @show length(makiecells)
     return Makie.GeometryBasics.Mesh(makienodes, makiecells)
 end
 
@@ -69,3 +75,25 @@ _convert_vec_to_makie(v::Vec{dim}) where {dim} = Makie.GeometryBasics.Point{dim,
 function _convert_cells_to_makie(grid::Grid{dim}, cellset::Vector{Int}) where {dim}
     return vcat( _convert_cell_to_makie.(get_cells(grid, cellset))...) # TODO: Optimize: Preallocate final vector and write to it (in a loop?) ?
 end
+
+function disconnect_field(u_nodes::Vector{Float64}, mesh::Makie.GeometryBasics.Mesh)
+    makienodes = GeometryBasics.coordinates(mesh)
+    totalindexset = length(length(makienodes))
+    u_disconnected = zeros(totalindexset)
+    zeroindexset = findall(x -> x == 0.0, u_nodes)
+    Union()
+    intersection()
+    for i in 1:length(u_nodes)
+        findfirst(x -> x == )
+        # get coordinates of the node i 
+        disconnectedindexset = findall(x -> x == makienodes[i], makienodes)
+        u_disconnected[disconnectedindexset] .= u_nodes[i]
+        # TODO: Idea: find all the zero entries in u and save. Then iterate through all entries writing correct
+        # nonzeros into correct spots
+    end
+    return u_disconnected
+end
+
+get_node_from_coordinate
+get_node_from_coordindate
+Node

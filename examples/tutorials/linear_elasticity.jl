@@ -1,8 +1,11 @@
 using FerriteGridUtil
 using Ferrite, FerriteGmsh, SparseArrays
 using OrderedCollections
-import GLMakie: Makie, GeometryBasics, Figure, Axis3, Colorbar, Legend, NoShading, wireframe!, mesh!
+using GLMakie
+# using CairoMakie
+import GLMakie: Makie, GeometryBasics, Figure, Axis3, Axis, Colorbar, Legend, NoShading, wireframe!, mesh!
 
+#=
 using Downloads: download
 logo_mesh = "logo.geo"
 asset_url = "https://raw.githubusercontent.com/Ferrite-FEM/Ferrite.jl/gh-pages/assets/"
@@ -127,21 +130,22 @@ function compute_von_Mises_stresses(grid, dh, cv, u, C)
 	end
     return σvm
 end
+=#
 
-σvm = compute_von_Mises_stresses(grid, dh, cv, u, C)
+# σvm = compute_von_Mises_stresses(grid, dh, cv, u, C)
 u_nodes = evaluate_at_grid_nodes(dh, u, :u)
-mesh = convert_to_makie_mesh(grid; displ=u_nodes)#, disconnectcells=false)
+# mesh = convert_to_makie_mesh(grid; displ=u_nodes, disconnectcells=false)
+mesh = convert_to_makie_mesh(grid; displ=u_nodes, disconnectcells=true )
+
 
 # fig = Figure()
-# ax  = Axis3(fig[1,1]; aspect=:data, title="Grid", xlabel="x [m]", ylabel="y [m]", zlabel="z[m]")
-# mesh!(ax, mesh; color=:gray, shading=NoShading)
-# wireframe!(ax, mesh; color=:black, linewidth=0.2)
+# colour=:coolwarm
+# limits = (minimum(norm.(u_nodes)), maximum(norm.(u_nodes)))
+# ax = Axis(fig[1,1]; aspect=1, title="displacement")
+# mesh!(ax, mesh; color=norm.(u_nodes), colormap=colour)
+# wireframe!(ax, mesh; color=:black, linewidth=0.25)
+# Colorbar(fig[1, 2]; vertical=true, colormap=colour, limits=limits)
 # fig
-
-fig = Makie.Figure()
-limits = (minimum(norm.(u_nodes)), maximum(norm.(u_nodes)))
-ax = Makie.Axis(fig[1,1]; aspect=1, title="displacement")
-Makie.mesh!(ax, mesh; color=norm.(u_nodes))
-# Makie.wireframe!(ax, mesh; linewidth=0.25)
-Makie.Colorbar(fig[1, 2]; vertical=true, colormap=:jet, limits=limits)
-fig
+println(findfirst(x -> x==[0.8084547497688923, 0.569353461891303], GeometryBasics.coordinates(mesh)))
+# GeometryBasics.faces(mesh)
+println(findall(x -> x==[0.8084547497688923, 0.569353461891303], GeometryBasics.coordinates(mesh)))
