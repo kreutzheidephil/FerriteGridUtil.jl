@@ -12,3 +12,5 @@ _get_makie_type_data(::Union{Type{Tetrahedron},Type{QuadraticTetrahedron}}) = 4,
 
 _convert_cell_to_makie(cell::Union{Hexahedron,QuadraticHexahedron}) = tuple(Makie.GeometryBasics.NgonFace{4,Int}(facet) for facet in Ferrite.facets(cell))
 _get_makie_type_data(::Union{Type{Hexahedron},Type{QuadraticHexahedron}}) = 6, Makie.GeometryBasics.NgonFace{4,Int}
+
+_convert_vec_to_makie(v::Vec{dim}) where {dim} = Makie.GeometryBasics.Point{dim, Float64}(v...)

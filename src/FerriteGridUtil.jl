@@ -23,7 +23,7 @@ export save, load
 # include("conversion.jl")
 # export convert_to_makie_mesh
 
-include("conversion/conversionDiscon.jl")
+include("conversion/conversion.jl")
 export convert_to_makie_mesh
 
 end

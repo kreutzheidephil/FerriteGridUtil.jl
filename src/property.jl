@@ -100,12 +100,12 @@ function get_interface_between_sets(grid, set¹::AbstractSet{Int}, set²::String
 end
 
 """
-    get_dofs_from_coordindate(dh::DofHandler{dim}, x::Vec{dim}, fieldname::Symbol; radius::Real=1e-12) where {dim}
+    get_dofs_from_coordindate(dh::DofHandler{dim}, x::Vec{dim}, fieldname::Symbol; radius::Float64=1e-12) where {dim}
 
 Return the degrees of freedom corresponding to `fieldname` for a node at coordinate `x`. 
 The node must be within a neighbourhood of radius `radius`. The default `radius` is 1e-12.
 """
-function get_dofs_from_coordinate(dh::DofHandler{dim}, x::Vec{dim}, fieldname::Symbol; radius::Real=1e-12) where {dim}
+function get_dofs_from_coordinate(dh::DofHandler{dim}, x::Vec{dim}, fieldname::Symbol; radius::Float64=1e-12) where {dim}
     ip = Ferrite.getfieldinterpolation(dh, Ferrite.find_field(dh, fieldname))
     isa(ip, ScalarInterpolation) ? dofs_per_field = 1 : dofs_per_field = dim
     nodeid, cellid, found_node = get_node_from_coordinate(dh, x; radius=radius)
@@ -119,17 +119,17 @@ function get_dofs_from_coordinate(dh::DofHandler{dim}, x::Vec{dim}, fieldname::S
     end
 end
 
-function get_dofs_from_coordinate(dh::DofHandler{dim}, x::Vector, fieldname::Symbol; radius::Real=1e-12) where {dim}
+function get_dofs_from_coordinate(dh::DofHandler{dim}, x::Vector, fieldname::Symbol; radius::Float64=1e-12) where {dim}
     return get_dofs_from_coordinate(dh, Tensors.Tensor{1,dim}(x), fieldname; radius=radius)
 end
 
 """
-    get_node_from_coordinate(dh::DofHandler{dim}, x::Vec{dim}; radius::Real=1e-12) where {dim}
+    get_node_from_coordinate(dh::DofHandler{dim}, x::Vec{dim}; radius::Float64=1e-12) where {dim}
 
 Search `grid` for the first node within a neighbourhood of radius `radius` around `x`.
 The node id, a cell id to which the node belongs and a bool to signify a succesful search are returned.
 """
-function get_node_from_coordinate(dh::DofHandler{dim}, x::Vec{dim}; radius::Real=1e-12) where {dim}
+function get_node_from_coordinate(dh::DofHandler{dim}, x::Vec{dim}; radius::Float64=1e-12) where {dim}
     cells = getcells(dh.grid)
     node_position = nothing
     found_node = false
@@ -145,6 +145,6 @@ function get_node_from_coordinate(dh::DofHandler{dim}, x::Vec{dim}; radius::Real
     return nothing, nothing, found_node
 end
 
-function get_node_from_coordinate(dh::DofHandler{dim}, x::Vector; radius::Real=1e-12) where {dim}
+function get_node_from_coordinate(dh::DofHandler{dim}, x::Vector; radius::Float64=1e-12) where {dim}
     return get_node_from_coordinate(dh, Tensors.Tensor{1, dim}(x); radius=radius)
 end
