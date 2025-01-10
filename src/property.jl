@@ -100,7 +100,7 @@ function get_interface_between_sets(grid, set¹::AbstractSet{Int}, set²::String
 end
 
 """
-    get_dofs_from_coordindate(dh::DofHandler{dim}, x::Vec{dim}, fieldname::Symbol; radius::Float64=1e-12) where {dim}
+    get_dofs_from_coordinate(dh::DofHandler{dim}, x::Vec{dim}, fieldname::Symbol; radius::Float64=1e-12) where {dim}
 
 Return the degrees of freedom corresponding to `fieldname` for a node at coordinate `x`. 
 The node must be within a neighbourhood of radius `radius`. The default `radius` is 1e-12.
@@ -148,3 +148,28 @@ end
 function get_node_from_coordinate(dh::DofHandler{dim}, x::Vector; radius::Float64=1e-12) where {dim}
     return get_node_from_coordinate(dh, Tensors.Tensor{1, dim}(x); radius=radius)
 end
+
+"""
+    get_coordinate_from_nodeid(id::Int, grid::Grid{dim}) where {dim}
+
+Return the coordinates for a node `id`, returns `nothing` if no `id` is found.
+"""
+function get_coordinate_from_nodeid(id::Int, grid::Grid{dim}) where {dim}
+    @assert 1 <= id <= Ferrite.getnnodes(grid)
+    nodeid = nothing
+    for cell in Ferrite.CellIterator(grid)
+        nodeid = findfirst(x -> x == id, getnodes(cell))
+        if isnothing(nodeid)
+            continue
+        else
+            return getcoordinates(cell)[nodeid]
+        end
+    end
+    return nodeid
+end
+
+"""
+!!! Limitations
+    The `get_coordinate_from_nodeid()` and `get_dofs_from_coordinate()` functions perform brute force
+    searches, in the case that performance is key alternatives should be explored if possible.
+"""
