@@ -88,15 +88,12 @@ end
 Returns a vector of values that can be passed to a `Makie.jl` plotting function to plot a discontinous field. 
 `mesh` should be a mesh that was generated using `convert_to_makie_mesh(grid; disconnectcells=true)` function.
 """
-function disconnect_field(u_nodes::Vector{Float64}, grid::Grid{dim}, mesh::Makie.GeometryBasics.Mesh) where {dim}
-    @warn "plotting discontinous fields is currently only supported for undeformed 
-    grids, passing a deformed `mesh` will result in unexpected behaviour"
-    makienodes = GeometryBasics.coordinates(mesh)
-    u_disconnected = Vector{Float64}(undef, length(makienodes))
-    for i in 1:length(u_nodes)
-        nodecoordinate = _convert_vec_to_makie(get_coordinate_from_nodeid(i, grid))
-        disconnectedindexset = findall(x -> x == nodecoordinate, makienodes)
-        u_disconnected[disconnectedindexset] .= u_nodes[i]
+function disconnect_field(u_nodes::Vector{Float64}, grid::Grid{dim}, cells::Vector{C}) where {dim, C<:Ferrite.AbstractCell}
+    nodespercell = Ferrite.nnodes(first(cells))
+    u_disconnected = zeros(length(cells)*nodespercell)
+    for (i, cell) in enumerate(cells)
+        noderange = 1+(i-1)*nodespercell:i*nodespercell
+        u_disconnected[noderange] .= u_nodes[[cell.nodes...]] # Keep DOF order consistent with _convert_to_makie_mesh(nodes, ::Val{true}, cells)
     end
     return u_disconnected
 end
