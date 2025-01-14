@@ -63,9 +63,7 @@ function _convert_to_makie_mesh(nodes::Vector{Vec{dim, T}}, ::Val{false}, cells:
     for (i, cell) in enumerate(cells)
         makiecells[1+(i-1)*makiefacepercell:i*makiefacepercell] .= _convert_cell_to_makie(cell)
     end
-    @show length(makienodes)
-    @show length(makiecells)
-    return Makie.GeometryBasics.Mesh(makienodes, makiecells)
+    return Makie.GeometryBasics.Mesh(makienodes, makiecells), makienodes, makiecells
 end
 
 function _convert_to_makie_mesh(nodes::Vector{Vec{dim, T}}, ::Val{true}, cells::Vector{C}) where {dim, T, C<:Ferrite.AbstractCell}
@@ -75,44 +73,46 @@ function _convert_to_makie_mesh(nodes::Vector{Vec{dim, T}}, ::Val{true}, cells::
     makiecells = Vector{CM}(undef, length(cells) * makiefacepercell)
     for (i, cell) in enumerate(cells)
         noderange = 1+(i-1)*nodespercell:i*nodespercell
-        makienodes[noderange] .= _convert_vec_to_makie.(nodes[[cell.nodes...]]) # Copy nodes of the current cell into ``makienodes``
+        makienodes[noderange] .= _convert_vec_to_makie.(nodes[[cell.nodes...]]) # Copy nodes (coordinates) of the current cell into ``makienodes``
         disconnected_cell = C(Tuple(n for n in noderange)) # Create a new cell using the copied nodes
         makiecells[1+(i-1)*makiefacepercell:i*makiefacepercell] .= _convert_cell_to_makie(disconnected_cell) # Convert the new cell to Makie
     end
-    return Makie.GeometryBasics.Mesh(makienodes, makiecells)
+    return Makie.GeometryBasics.Mesh(makienodes, makiecells), makienodes, makiecells
 end
 
 """
-    disconnect_field(u_nodes::Vector{Float64}, grid::Grid{dim}, mesh::Makie.GeometryBasics.Mesh) where {dim}
+    disconnect_field(
+    field::Vector{Float64},
+    cellset)
 
 Returns a vector of values that can be passed to a `Makie.jl` plotting function to plot a discontinous field. 
 `mesh` should be a mesh that was generated using `convert_to_makie_mesh(grid; disconnectcells=true)` function.
+`field` should be a the values of the field at the nodes, currently only scarlar values are supported. 
 """
-function disconnect_field(u_nodes::Vector{Float64}, grid::Grid{dim}, cells::Vector{C}) where {dim, C<:Ferrite.AbstractCell}
-    nodespercell = Ferrite.nnodes(first(cells))
-    u_disconnected = zeros(length(cells)*nodespercell)
-    for (i, cell) in enumerate(cells)
-        noderange = 1+(i-1)*nodespercell:i*nodespercell
-        u_disconnected[noderange] .= u_nodes[[cell.nodes...]] # Keep DOF order consistent with _convert_to_makie_mesh(nodes, ::Val{true}, cells)
-    end
-    return u_disconnected
+function disconnect_field(
+    field::Vector{Float64},
+    grid::Grid{dim};
+    cellset::Union{Vector{C},OrderedSet{Int},String} = Ferrite.getcells(grid)
+    ) where {dim, C<:Ferrite.AbstractCell}
+    return disconnect_field(field, grid, cellset)
 end
 
-"""
-    get_coordinate_from_nodeid(id::Int, grid::Grid{dim}) where {dim}
+function disconnect_field(field::Vector{Float64}, grid::Grid{dim}, cellset::OrderedSet{Int}) where {dim}
+    return disconnect_field(field, grid, grid.cells[collect(cellset)])
+end
 
-Return the coordinates for a node `id`, returns `nothing` if no `id` is found.
-"""
-function get_coordinate_from_nodeid(id::Int, grid::Grid{dim}) where {dim}
-    @assert id ≤ Ferrite.getnnodes(grid)
-    nodeid = nothing
-    for cell in Ferrite.CellIterator(grid)
-        nodeid = findfirst(x -> x == id, getnodes(cell))
-        if isnothing(nodeid)
-            continue
-        else
-            return getcoordinates(cell)[nodeid]
-        end
+function disconnect_field(field::Vector{Float64}, grid::Grid{dim}, cellset::String) where {dim}
+    return disconnect_field(field, grid, grid.cells[collect(getcellset(grid, cellset))])
+end
+
+function disconnect_field(field::Vector{Float64}, grid::Grid{dim}, cellset::Vector{C}) where {dim, C<:Ferrite.AbstractCell}
+    nodespercell = Ferrite.nnodes(first(cellset))
+    temp_cellset = getcellset(grid, "right-half")
+    field_disconnected = zeros(length(grid.cells)*nodespercell)
+    for (i, cell) in enumerate(temp_cellset)
+        noderange = 1+(cell-1)*nodespercell:cell*nodespercell
+        # noderange =  collect(cell.nodes)
+        field_disconnected[noderange] .= field[i] # Keep DOF order consistent with _convert_to_makie_mesh(nodes, ::Val{true}, cells)
     end
-    return nodeid
+    return field_disconnected
 end
