@@ -5,7 +5,7 @@ using OrderedCollections
 using CairoMakie
 # import GLMakie: Makie, GeometryBasics, Figure, Axis3, Axis, Colorbar, Legend, NoShading, wireframe!, mesh!
 
-nel = 4
+nel = 10
 shape = Quadrilateral
 refshape = RefQuadrilateral
 grid = generate_grid(shape, (nel, nel), Tensors.Vec((0.0, 0.0)), Tensors.Vec((1.0, 1.0)))
@@ -162,20 +162,14 @@ function plot_this(values::Vector, mesh::Makie.GeometryBasics.Mesh)
     return fig
 end
 
-# qp_stresses, _ = calculate_stresses(grid, dh, cv, u, C);
-# proj = L2Projector(Lagrange{refshape, 1}(), grid)
-# stress_field = project(proj, qp_stresses, qr)
-# stress_node = evaluate_at_grid_nodes(proj, norm.(stress_field))
 σvM_cell = compute_von_Mises_stresses(dh, cv, u, C)
+# cellset = getcellset(grid, "right-half")
+# cellset = OrderedSet(1:getncells(grid))
 
-# ns = (n1=1.0, n2=2.0, n3=3.0, n4=4.0, n5=5.0, n6=6.0, n7=7.0, n8=8.0, n9=9.0)
-# cellset = "right-half"
-cellset = grid.cells
+matrix_field = collect(Float64(i)*j for i in OrderedSet(1:getncells(grid)), j in 1:4)
 dmesh, dmakienodes, dmakiecells = convert_to_makie_mesh(grid; cellset=cellset, disconnectcells=true)
 # mesh, makienodes, makiecells = convert_to_makie_mesh(grid; disconnectcells=false)
 
-# stress = [ns.n1, ns.n2, ns.n3, ns.n4, ns.n5, ns.n6, ns.n7, ns.n8, ns.n9]
-
-σvM_cell_discon = FerriteGridUtil.disconnect_field(σvM_cell, grid; cellset=cellset)
+σvM_cell_discon = FerriteGridUtil.disconnect_field(matrix_field, grid; cellset="right-half")
 
 plot_this(σvM_cell_discon, dmesh)

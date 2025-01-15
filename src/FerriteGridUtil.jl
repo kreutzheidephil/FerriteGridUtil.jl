@@ -24,6 +24,6 @@ export save, load
 # export convert_to_makie_mesh
 
 include("conversion/conversion.jl")
-export convert_to_makie_mesh
+export convert_to_makie_mesh, disconnect_field
 
 end
