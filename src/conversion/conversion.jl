@@ -20,9 +20,11 @@ Keyword arguments:
 function convert_to_makie_mesh(
     grid::Grid{dim}; 
     displ::Union{Vector{Vec{dim, T}}, Nothing} = nothing, 
-    cellset::Union{Vector{<:Ferrite.AbstractCell},OrderedSet{Int},String}=getcells(grid),
+    cellset::Union{Vector{C},OrderedSet{Int},String}=getcells(grid),
     disconnectcells::Bool=false
-    ) where {dim, T}
+    ) where {dim, T, C<:Ferrite.AbstractCell}
+    celltype = typeof(first(grid.cells))
+    celltype == Ferrite.Line || celltype == Ferrite.QuadraticLine ? throw("Makie.jl currently only supports 2D and 3D points") : nothing; # TODO: possible work around in the future?
     return _convert_to_makie_mesh(grid, displ, disconnectcells, cellset)
 end
 
@@ -46,7 +48,7 @@ function _convert_to_makie_mesh(grid::Grid{dim}, ::Nothing, disconnectcells::Boo
 end
 
 function _convert_cells_to_makie(grid::Grid{dim}, cellset::Vector{Int}) where {dim}
-    return vcat( _convert_cell_to_makie.(get_cells(grid, cellset))...) # TODO: Optimize: Preallocate final vector and write to it (in a loop?) ?
+    return vcat( _convert_cell_to_makie.(get_cells(grid, cellset))...) # TODO: Optimize: Preallocate final vector and write to it (in a loop?)?
 end
 
 function _convert_to_makie_mesh(nodes::Vector{Vec{dim, T}}, ::Val{false}, cells::Vector{C}) where {dim, T, C<:Ferrite.AbstractCell}
@@ -76,16 +78,23 @@ end
 """
     disconnect_field(field, grid; cellset)
 
-Returns a vector of values that can be passed to a `Makie.jl` plotting function to plot a discontinous field.
-
-`mesh` should be a mesh that was generated using `convert_to_makie_mesh(grid; disconnectcells=true)` function.
-For constant values per cell `field` should be a `Vector{Float64}` with the length `Ferrite.getncells(grid)`. 
-Otherwise the a `Matrix` can be passed with rows corresponding the the `CellIndex` and the columns to the value of the nodes 
-corresponding to this cell.
+Returns a vector of values that can be passed to a `Makie.jl` plotting function to plot a discontinous (across element boundaries) field.
 
 Keyword arguments:
  - `cellset`: to plot a subdomain of the grid, the default is the entire `grid`.
 
+`mesh` should be a mesh that was generated using the `convert_to_makie_mesh(grid; disconnectcells=true)` function.
+For constant values per cell `field` should be a `Vector{Float64}` with the length `Ferrite.getncells(grid)`. 
+Otherwise a `Matrix` can be passed with rows corresponding the the `cellid::Int` and the columns to the value of the nodes 
+corresponding to that cell.
+Example matrix:
+```julia
+field = [
+    0.44 0.29 # ... # data for nodes 1, 2 ... of element 1
+    0.98 0.48 # ... # data for nodes 1, 2 ... of element 2
+    0.32 0.55 # ... # data for nodes 1, 2 ... of element 3
+]
+```
 """
 function disconnect_field(
     field::Union{Vector{Float64}, Matrix{Float64}},
