@@ -7,7 +7,7 @@ for the cells of the grid.
 
 Keyword arguments:
  - `cellset`: to determin the moment of a subdomain of the grid, the default is the entire `grid`.
- - `refpoint`: to change the reference point, the default is the the origin. Only applicable for `order ≥ 2`.
+ - `refpoint`: to change the reference point, the default is the the origin. Only applicable for `order ≥ 1`.
 
 """
 function get_moment(grid::Grid{dim}, order::Int; 
